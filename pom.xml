@@ -20,7 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Project dependencies -->
-        <jnr-ffi.version>2.0.5</jnr-ffi.version>
+        <jna.version>5.2.0</jna.version>
         <junit.version>4.11</junit.version>
 
         <!-- Minimum JDK version required -->
@@ -69,9 +69,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.jnr</groupId>
-            <artifactId>jnr-ffi</artifactId>
-            <version>${jnr-ffi.version}</version>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>${jna.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

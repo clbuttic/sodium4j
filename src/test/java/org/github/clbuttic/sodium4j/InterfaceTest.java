@@ -15,16 +15,16 @@ import static junit.framework.TestCase.assertTrue;
  * class are only intended to confirm the interface is working correctly.
  */
 public class InterfaceTest {
-    @Before
-    public void init() {
-        Sodium4J.getInstance();
-    }
-
-    @Test
-    public void sanityCheck() {
-        Sodium4J instance = Sodium4J.getInstance();
-        assert(instance != null);
-    }
+//    @Before
+//    public void init() {
+//        Sodium4J.getInstance();
+//    }
+//
+//    @Test
+//    public void sanityCheck() {
+//        Sodium4J instance = Sodium4J.getInstance();
+//        assert(instance != null);
+//    }
 
 //    @Test
 //    public void memcmp1() {

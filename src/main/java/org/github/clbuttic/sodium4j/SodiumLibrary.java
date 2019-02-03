@@ -1,12 +1,22 @@
 package org.github.clbuttic.sodium4j;
 
-import jnr.ffi.annotations.In;
-import jnr.ffi.annotations.Out;
-import jnr.ffi.byref.ByteByReference;
-import jnr.ffi.byref.LongLongByReference;
-import jnr.ffi.types.size_t;
 
-public interface Sodium {
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+
+import java.nio.charset.StandardCharsets;
+
+public interface SodiumLibrary extends Library {
+
+    public SodiumLibrary INSTANCE = Native.load(
+            (Platform.isWindows() ? "libsodium" : "sodium"),
+            SodiumLibrary.class
+    );
+
     /**
      * Initilizes the underlying kibsodium library.
      * @return
@@ -32,7 +42,7 @@ public interface Sodium {
      * @param len
      * @return 0 if the len bytes pointed to by b1_ match the len bytes pointed to by b2_. Otherwise, it returns -1.
      */
-    int sodium_memcmp(@In byte[] b1_, @In byte[] b2_, @In @size_t int len);
+    int sodium_memcmp(byte[] b1_, byte[] b2_, int len);
 
     /**
      * Hexadecimal encoding.
@@ -48,8 +58,8 @@ public interface Sodium {
      * @return
      */
 
-    void sodium_bin2hex(@Out byte[] hex, @In @size_t int hex_maxlen,
-                        @In byte[] bin, @In @size_t int bin_len);
+    void sodium_bin2hex(byte[] hex, int hex_maxlen,
+                        byte[] bin, int bin_len);
 
 
     /**
@@ -82,10 +92,10 @@ public interface Sodium {
      * @return
      */
 
-    int sodium_hex2bin(@Out byte[] bin, @In @size_t int bin_maxlen,
-                       @In byte[] hex, @In @size_t int hex_len,
-                       @In byte[] ignore, @Out LongLongByReference bin_len,
-                       @Out ByteByReference hex_end);
+    int sodium_hex2bin(byte[] bin, int bin_maxlen,
+                       byte[] hex, int hex_len,
+                       byte[] ignore, IntByReference bin_len,
+                       Pointer hex_end);
 
 
 }

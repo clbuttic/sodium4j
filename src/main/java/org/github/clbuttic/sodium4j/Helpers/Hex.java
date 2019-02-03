@@ -1,16 +1,26 @@
 package org.github.clbuttic.sodium4j.Helpers;
 
-import jnr.ffi.Address;
-import jnr.ffi.Pointer;
-import jnr.ffi.byref.ByteByReference;
-import jnr.ffi.byref.LongLongByReference;
-import jnr.ffi.byref.PointerByReference;
-import org.github.clbuttic.sodium4j.Sodium;
+import com.sun.jna.ptr.IntByReference;
 import org.github.clbuttic.sodium4j.Sodium4J;
+import org.github.clbuttic.sodium4j.SodiumLibrary;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Hex {
+
+    /**
+     * Encode a string to a hex string.
+     * @param bin A string to encode
+     * @return An encoded hex string.
+     */
+
+    public static String encode(String bin) {
+        //Hex encoded strings are only ISO_8859_1, so we don't offer any options.
+        return new String(encode(bin.getBytes()), StandardCharsets.ISO_8859_1);
+    }
+
     /**
      * Encode a byte array into a hexadecimal byte array.
      *
@@ -21,70 +31,100 @@ public class Hex {
     public static byte[] encode(byte[] bin) {
         //Double length, plus a null terminator
         byte[] hex = new byte[bin.length * 2 + 1];
-        Sodium4J.getInterface().sodium_bin2hex(hex, hex.length, bin, bin.length);
+        SodiumLibrary.INSTANCE.sodium_bin2hex(hex, hex.length, bin, bin.length);
         //Remove the null terminator.
         return Arrays.copyOfRange(hex, 0, hex.length - 1);
     }
 
     /**
-     * Encode a string into a hexadecimal string.
-     *
-     * The returned string has its null terminator removed.
-     * @param message The String to encode.
-     * @return A hexadecimal String.
+     * Decode a hex encoded string.
+     * @param hex The hex encoded string.
+     * @return The decoded string.
      */
-    public static String encode(String message) {
-        return new String(encode(message.getBytes()));
+
+    public static String decode(String hex) {
+        return new String(
+                decode(hex.getBytes(StandardCharsets.ISO_8859_1), null),
+                StandardCharsets.ISO_8859_1);
     }
 
     /**
-     * Decode a hexadecimal byte array into a byte array.
-     * @param message A hexadecimal encoded byte array.
+     * Decode a hex encoded string, encoding to a specific character set.
+     * @param hex A hex encoded string.
+     * @param charset The character set to encode the result.
+     * @return The decoded string.
+     */
+
+    public static String decode(String hex, Charset charset){
+        return new String(decode(hex.getBytes(charset), null), charset);
+    }
+
+    /**
+     * Decode a hex encoded string, with characters to ignore.
+     * @param hex A hex encoded string.
+     * @param ignoreChars Characters in hex to ignore.
+     * @return The decoded string.
+     */
+
+    public static String decode(String hex, String ignoreChars) {
+        return new String(
+                decode(hex.getBytes(StandardCharsets.ISO_8859_1), ignoreChars.getBytes(StandardCharsets.ISO_8859_1)),
+                StandardCharsets.ISO_8859_1);
+    }
+
+    /**
+     * Decode a hex encoded string, with characters to ignore and a character set to decode to.
+     * @param hex A hex encoded string.
+     * @param ignoreChars Characters in hex to ignore.
+     * @param charset The character set to decode to.
+     * @return The decoded string.
+     */
+    public static String decode(String hex, String ignoreChars, Charset charset) {
+        return new String(decode(hex.getBytes(charset), ignoreChars.getBytes(charset)), charset);
+    }
+
+    /**
+     * Decode a hex encoded byte array.
+     * @param hex A hex encoded byte array.
      * @return A decoded byte array.
      */
-    public static byte[] decode(byte[] message) {
-        return decode(message, null);
+    public static byte[] decode(byte[] hex) {
+        return decode(hex, null);
     }
 
     /**
-     * Decode a hexadecimal String into a String.
-     * @param message A hexadecimal encoded String
-     * @return A decoded String.
+     * Decode a hex encoded byte array, with a character set specifier.
+     * @param hex A hex encoded byte array.
+     * @param ignoreChars Characters to ignore in hex
+     * @param charset The character ignoreChars is in.
+     * @return A decoded byte array
      */
-    public static String decode (String message) {
-        return new String(decode(message.getBytes(), null));
+
+    public static byte[] decode(byte[] hex, String ignoreChars, Charset charset) {
+        return decode(hex, ignoreChars.getBytes(charset));
     }
 
     /**
-     * Decode a hexadecimal String into a String with characters to ignore.
-     * @param message A hexadecimal encoded String.
-     * @param ignoreChars A list of characters to ignore in message.
-     * @return A decoded String
-     */
-    public static String decode (String message, String ignoreChars) {
-        return new String(decode(message.getBytes(), ignoreChars.getBytes()));
-    }
-
-    /**
-     * Decode a hexadecimal byte array into a byte array with characters to ignore
-     * @param hex A hexadecimal encoded byte array
-     * @param ignoreChars A list of characters to ignore in message
-     * @return A decoded byte array.
+     * Decode a hex encoded byte array, with characters to ignore.
+     * @param hex A hex encoded byte array.
+     * @param ignoreChars Characters in hex to ignore.
+     * @return The decoded byte array.
      */
 
-    public static byte[] decode (byte[] hex, byte[] ignoreChars) {
-        byte[] bin = new byte[hex.length*2];
-        LongLongByReference outputLength = new LongLongByReference();
-        ByteByReference hex_end = new ByteByReference();
+    public static byte[] decode(byte[] hex, byte[] ignoreChars) {
+        byte[] bin = new byte[hex.length];
 
-        int result = Sodium4J.getInterface().sodium_hex2bin(
+        IntByReference outputLength = new IntByReference();
+
+        int result = SodiumLibrary.INSTANCE.sodium_hex2bin(
                 bin, bin.length,
                 hex, hex.length,
                 ignoreChars, outputLength,
-                hex_end
+                null
         );
+
         //TODO: Handle hex_end and result
-        int length = outputLength.intValue();
-        return Arrays.copyOfRange(bin, 0, length);
+
+        return Arrays.copyOfRange(bin, 0, outputLength.getValue());
     }
 }
