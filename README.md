@@ -1,10 +1,10 @@
-Based off kalium, sodium4j is a Java binding of libSodium, implementing an object oriented interface. 
+Sodium4j is yet another Java binding of the excellent libSodium, implementing an object oriented interface. 
 
 Three interfaces exist for the user: A low level direct exposure of the native functions, and two high level encapsulations of libsodium, that gives a familiar Java experience.
 
-Misuse of the low level interface can cause your JVM to crash unexpectedly. 
+Misuse of the low level interface can cause your JVM to crash unexpectedly. Learn from our suffering, and use the OO interfaces.
 
-This Readme and other documentation will be updated as this library is completed. Contributors are welcome, just log an issue. 
+This Readme and other documentation will be updated as this library is completed. Contributors are welcome, just log an issue if you want to join in, for co-ordination. 
 
 # Why another libsodium Java binding?
 
@@ -18,7 +18,9 @@ I have used many Java bindings of libsodium extensively, but have never found on
 
 * Keep up to date with libsodium releases, and be backwards compatible with some older releases. Allow the user to use what versions they want to, but warn on serious issues.
 
-* Be 100% compatible with all of libsodium's unit tests. 
+* Be 100% compatible with all of libsodium's unit tests. Implement all of libsodium's tests where suitable.
+
+* Behaviour of sodium4j must be exactly as expected from a user of libsodium. Differences must be clearly documented.
 
 # Interfaces
 
