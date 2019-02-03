@@ -53,10 +53,13 @@ public class HelpersHexTest {
     }
 
     //codecs.c#L30 Tests decoding without hex_end
+    //We always have hex_end
 
     //codecs.c#L35 Tests overflow detection
+    //Not possible without changing the implementer.
 
     //codecs.c#L41 Test a strange input length, and short output
+    //Output will always be long enough for us.
 
     //codecs.c#L49 Test a strange input length
 
@@ -80,6 +83,7 @@ public class HelpersHexTest {
     }
 
     //codecs.c#L63 Strange input length and no hex_end
+    //We always have hex_end
 
     //codecs.c#L69 An unexpected character
     @Test
@@ -90,6 +94,10 @@ public class HelpersHexTest {
         String output = Hex.decode(input, ":");
         assertEquals(expected, output);
     }
+
+    //codecs.c#L76 An unexpected character with no end pointer.
+    //We always have an end pointer.
+
 
 }
 
