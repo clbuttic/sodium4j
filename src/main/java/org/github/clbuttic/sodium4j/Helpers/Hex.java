@@ -34,7 +34,7 @@ public class Hex {
     public static byte[] encode(byte[] bin) {
         //Double length, plus a null terminator
         byte[] hex = new byte[bin.length * 2 + 1];
-        SodiumLibrary.INSTANCE.sodium_bin2hex(hex, hex.length, bin, bin.length);
+        Sodium4J.INSTANCE.sodium_bin2hex(hex, hex.length, bin, bin.length);
         //Remove the null terminator.
         return Arrays.copyOfRange(hex, 0, hex.length - 1);
     }
@@ -121,7 +121,8 @@ public class Hex {
      */
 
     public static byte[] decode(byte[] hex, byte[] ignoreChars) {
-        byte[] bin = new byte[hex.length];
+        Sodium4J.INSTANCE.sodium_init();
+        byte[] bin = new byte[hex.length/2 + 1];
 
         IntByReference outputLength = new IntByReference();
         Pointer hexPointer = new Memory(hex.length);
@@ -130,7 +131,7 @@ public class Hex {
 
         PointerByReference hex_end = new PointerByReference();
 
-        int result = SodiumLibrary.INSTANCE.sodium_hex2bin(
+        int result = Sodium4J.INSTANCE.sodium_hex2bin(
                 bin, bin.length,
                 hexPointer, hex.length,
                 ignoreChars, outputLength,

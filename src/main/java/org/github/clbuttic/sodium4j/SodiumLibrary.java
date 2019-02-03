@@ -13,10 +13,6 @@ import java.nio.charset.StandardCharsets;
 
 public interface SodiumLibrary extends Library {
 
-    public SodiumLibrary INSTANCE = Native.load(
-            (Platform.isWindows() ? "libsodium" : "sodium"),
-            SodiumLibrary.class
-    );
 
     /**
      * Initilizes the underlying kibsodium library.

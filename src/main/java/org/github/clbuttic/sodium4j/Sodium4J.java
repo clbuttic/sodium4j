@@ -1,11 +1,24 @@
 package org.github.clbuttic.sodium4j;
 
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Sodium4J {
+
+    public static final SodiumLibrary INSTANCE;
+
+    static {
+        INSTANCE  = Native.load(
+                (Platform.isWindows() ? "libsodium" : "sodium"),
+                SodiumLibrary.class
+        );
+        INSTANCE.sodium_init();
+    }
 //
 //    /**
 //     * The minimum version of libsodium that we are willing to work with.
