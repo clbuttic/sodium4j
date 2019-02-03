@@ -3,10 +3,8 @@ package org.github.clbuttic.sodium4j;
 
 
 import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import java.nio.charset.StandardCharsets;
@@ -55,8 +53,8 @@ public interface SodiumLibrary extends Library {
      * @return
      */
 
-    void sodium_bin2hex(byte[] hex, int hex_maxlen,
-                        byte[] bin, int bin_len);
+    void sodium_bin2hex(byte[] hex, long hex_maxlen,
+                        byte[] bin, long bin_len);
 
 
     /**
@@ -89,10 +87,23 @@ public interface SodiumLibrary extends Library {
      * @return
      */
 
-    int sodium_hex2bin(byte[] bin, int bin_maxlen,
-                       Pointer hex, int hex_len,
-                       byte[] ignore, IntByReference bin_len,
+    int sodium_hex2bin(byte[] bin, long bin_maxlen,
+                       Pointer hex, long hex_len,
+                       byte[] ignore, LongByReference bin_len,
                        PointerByReference hex_end);
+
+
+
+    void sodium_bin2base64(byte[] b64, long b64_maxlen,
+                          byte[] bin, long bin_len,
+                          int variant);
+
+    int sodium_base642bin(byte[] bin, long bin_maxlen,
+                      byte[] b64, long b64_len,
+                      byte[] ignore, long bin_len,
+                      long b64_end, int variant);
+
+    int sodium_base64_encoded_len(long bin_len, int variant);
 
 
 }
