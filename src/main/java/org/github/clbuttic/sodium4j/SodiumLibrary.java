@@ -7,6 +7,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 import java.nio.charset.StandardCharsets;
 
@@ -93,9 +94,9 @@ public interface SodiumLibrary extends Library {
      */
 
     int sodium_hex2bin(byte[] bin, int bin_maxlen,
-                       byte[] hex, int hex_len,
+                       Pointer hex, int hex_len,
                        byte[] ignore, IntByReference bin_len,
-                       Pointer hex_end);
+                       PointerByReference hex_end);
 
 
 }

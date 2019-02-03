@@ -1,6 +1,9 @@
 package org.github.clbuttic.sodium4j.Helpers;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 import org.github.clbuttic.sodium4j.Sodium4J;
 import org.github.clbuttic.sodium4j.SodiumLibrary;
 
@@ -106,8 +109,14 @@ public class Hex {
 
     /**
      * Decode a hex encoded byte array, with characters to ignore.
+     *
+     * The decoding is tolerent to unexpected characters. Any character in ignoreChars is ignored.
+     * Any other unexpected character results in an IllegalArgumentException.
+     *
+     * The behaviour is exactly the same as you would expect for sodium_bin2hex, with hex_end set to null.
      * @param hex A hex encoded byte array.
      * @param ignoreChars Characters in hex to ignore.
+     * @throws IllegalArgumentException If input is invalid.
      * @return The decoded byte array.
      */
 
@@ -115,15 +124,32 @@ public class Hex {
         byte[] bin = new byte[hex.length];
 
         IntByReference outputLength = new IntByReference();
+        Pointer hexPointer = new Memory(hex.length);
+
+        hexPointer.write(0, hex, 0, hex.length);
+
+        PointerByReference hex_end = new PointerByReference();
 
         int result = SodiumLibrary.INSTANCE.sodium_hex2bin(
                 bin, bin.length,
-                hex, hex.length,
+                hexPointer, hex.length,
                 ignoreChars, outputLength,
-                null
+                hex_end
         );
 
-        //TODO: Handle hex_end and result
+        if (result != 0) {
+            //Result is not 0 if something went wrong, usually due to a weird input.
+            throw new IllegalArgumentException("Cannot decode supplied input.");
+        }
+
+        long offset = Pointer.nativeValue(hex_end.getValue()) - Pointer.nativeValue(hexPointer);
+
+        if (offset < hex.length) {
+            //System.out.println("Offset is too short for input " + new String(hex, StandardCharsets.ISO_8859_1));
+            byte[] extraChars = Arrays.copyOfRange(hex, (int)offset, hex.length);
+
+            throw new IllegalArgumentException("Unexpected characters in hex decode at position " + offset);
+        }
 
         return Arrays.copyOfRange(bin, 0, outputLength.getValue());
     }
