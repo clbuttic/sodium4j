@@ -7,14 +7,18 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
-import java.nio.charset.StandardCharsets;
 
+/**
+ * An interface into libsodium. It's not advised to use this interface directly.
+ *
+ * If there is a feature or behaviousr missing from Sodium4J that requires you to use this interface, please log a new
+ * issue at https://github.com/clbuttic/sodium4j/issues so we can help you.
+ */
 public interface SodiumLibrary extends Library {
 
-
     /**
-     * Initilizes the underlying kibsodium library.
-     * @return
+     * Initilizes the underlying libsodium library.
+     * @return 0 if successful, 1 if the library has already been initialized, -1 if an error has occurred.
      */
 
     int sodium_init();
@@ -92,17 +96,52 @@ public interface SodiumLibrary extends Library {
                        byte[] ignore, LongByReference bin_len,
                        PointerByReference hex_end);
 
-
-
+    /**
+     * The sodium_bin2base64() function encodes bin as a Base64 string. variant must be one of:
+     *
+     * - SODIUM_BASE64_VARIANT_ORIGINAL
+     * - SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING
+     * - SODIUM_BASE64_VARIANT_URLSAFE
+     * - SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING
+     *
+     * None of these Base64 variants provides any form of encryption; just like hex encoding, anyone can decode them.
+     *
+     * Computing a correct size for b64_maxlen is not straightforward and depends on the chosen variant.
+     *
+     * The sodium_base64_encoded_len(size_t bin_len, int variant) function is also available for the same purpose.
+     * @param b64
+     * @param b64_maxlen
+     * @param bin
+     * @param bin_len
+     * @param variant
+     */
     void sodium_bin2base64(byte[] b64, long b64_maxlen,
                           byte[] bin, long bin_len,
                           int variant);
 
+    /**
+     *
+     * @param bin
+     * @param bin_maxlen
+     * @param b64
+     * @param b64_len
+     * @param ignore
+     * @param bin_len
+     * @param b64_end
+     * @param variant
+     * @return
+     */
     int sodium_base642bin(byte[] bin, long bin_maxlen,
                       byte[] b64, long b64_len,
                       byte[] ignore, long bin_len,
                       long b64_end, int variant);
 
+    /**
+     * Calculate the length of a base64 encoded string if a variant was used to encode a bin_len string.
+     * @param bin_len The length of the string to encode.
+     * @param variant The variant to encode.
+     * @return The length of the encoded string.
+     */
     int sodium_base64_encoded_len(long bin_len, int variant);
 
 

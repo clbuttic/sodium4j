@@ -15,6 +15,13 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.github.clbuttic.sodium4j.Constants.*;
 
+/**
+ * Test Helpers.Hex encoding and decoding.
+ *
+ * Not all tests from codec.c are implemented, yet.
+ *
+ * TODO: Implement all tests, even if it means direct calls to SodiumLibrary
+ */
 public class HelpersHexTest {
     @Rule
     public ExpectedException thrown= ExpectedException.none();
@@ -41,9 +48,13 @@ public class HelpersHexTest {
         assertTrue(Arrays.equals(expected, decoded));
     }
 
-    //Duplicate Test02, but use Strings instead of byte[].
-    //Anything in extended ascii beyond 0x7f needs to be forced to ISO_8859_1, or else it'll be assumed to be UTF.
-    //We have to make sure this doesn't happen.
+    /*
+    Duplicate Test02, but use Strings instead of byte[].
+    Anything in extended ascii beyond 0x7f needs to be forced to ISO_8859_1, or else it'll be assumed to be UTF and
+    be translated. One byte > 127 is increased to 2 or 3 bytes, depending on which UTF charset is in place.
+
+    We have to make sure this doesn't happen.
+    */
     @Test
     public void Test02b() {
         String input = "Cafe : 6942";

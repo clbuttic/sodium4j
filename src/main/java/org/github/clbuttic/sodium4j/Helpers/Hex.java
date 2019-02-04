@@ -3,6 +3,7 @@ package org.github.clbuttic.sodium4j.Helpers;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import org.github.clbuttic.sodium4j.Sodium4J;
 import org.github.clbuttic.sodium4j.SodiumLibrary;
@@ -34,7 +35,7 @@ public class Hex {
     public static byte[] encode(byte[] bin) {
         //Double length, plus a null terminator
         byte[] hex = new byte[bin.length * 2 + 1];
-        Sodium4J.INSTANCE.sodium_bin2hex(hex, hex.length, bin, bin.length);
+        Sodium4J.getLibrary().sodium_bin2hex(hex, hex.length, bin, bin.length);
         //Remove the null terminator.
         return Arrays.copyOfRange(hex, 0, hex.length - 1);
     }
@@ -121,17 +122,16 @@ public class Hex {
      */
 
     public static byte[] decode(byte[] hex, byte[] ignoreChars) {
-        Sodium4J.INSTANCE.sodium_init();
         byte[] bin = new byte[hex.length/2 + 1];
 
-        IntByReference outputLength = new IntByReference();
+        LongByReference outputLength = new LongByReference();
         Pointer hexPointer = new Memory(hex.length);
 
         hexPointer.write(0, hex, 0, hex.length);
 
         PointerByReference hex_end = new PointerByReference();
 
-        int result = Sodium4J.INSTANCE.sodium_hex2bin(
+        int result = Sodium4J.getLibrary().sodium_hex2bin(
                 bin, bin.length,
                 hexPointer, hex.length,
                 ignoreChars, outputLength,
@@ -152,6 +152,6 @@ public class Hex {
             throw new IllegalArgumentException("Unexpected characters in hex decode at position " + offset);
         }
 
-        return Arrays.copyOfRange(bin, 0, outputLength.getValue());
+        return Arrays.copyOfRange(bin, 0, (int)outputLength.getValue());
     }
 }
