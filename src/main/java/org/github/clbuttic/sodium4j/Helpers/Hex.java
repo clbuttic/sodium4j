@@ -2,15 +2,18 @@ package org.github.clbuttic.sodium4j.Helpers;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import org.github.clbuttic.sodium4j.Sodium4J;
-import org.github.clbuttic.sodium4j.SodiumLibrary;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.rmi.StubNotFoundException;
 import java.util.Arrays;
+
+/**
+ * A class to encode and decode hex strings.
+ */
 
 public class Hex {
 
@@ -21,8 +24,17 @@ public class Hex {
      */
 
     public static String encode(String bin) {
-        //Hex encoded strings are only ISO_8859_1, so we don't offer any options.
-        return new String(encode(bin.getBytes()), StandardCharsets.ISO_8859_1);
+        return new String(encode(bin.getBytes(StandardCharsets.ISO_8859_1)), StandardCharsets.ISO_8859_1);
+    }
+
+    /**
+     * Encode a string to a hex string, using a specified charset.
+     * @param bin A string to encode.
+     * @param charset A character set to use.
+     * @return An encoded hex string.
+     */
+    public static String encode(String bin, Charset charset) {
+        return new String(encode(bin.getBytes(charset)), charset);
     }
 
     /**
@@ -103,7 +115,6 @@ public class Hex {
      * @param charset The character ignoreChars is in.
      * @return A decoded byte array
      */
-
     public static byte[] decode(byte[] hex, String ignoreChars, Charset charset) {
         return decode(hex, ignoreChars.getBytes(charset));
     }
@@ -111,13 +122,16 @@ public class Hex {
     /**
      * Decode a hex encoded byte array, with characters to ignore.
      *
-     * The decoding is tolerent to unexpected characters. Any character in ignoreChars is ignored.
+     * The decoding is not tolerent to unexpected characters. Any character in ignoreChars is ignored.
      * Any other unexpected character results in an IllegalArgumentException.
      *
-     * The behaviour is exactly the same as you would expect for sodium_bin2hex, with hex_end set to null.
+     * The behaviour is exactly the same as you would expect for sodium_hex2bin, with hex_end set to null, but throws
+     * an exception when -1 is returned.
+     *
      * @param hex A hex encoded byte array.
      * @param ignoreChars Characters in hex to ignore.
-     * @throws IllegalArgumentException If input is invalid.
+     * @throws RuntimeException If an error during decoding is detected without fault of the input parameters.
+     * @throws IllegalArgumentException If an input parameter is invalid.
      * @return The decoded byte array.
      */
 
@@ -140,7 +154,7 @@ public class Hex {
 
         if (result != 0) {
             //Result is not 0 if something went wrong, usually due to a weird input.
-            throw new IllegalArgumentException("Cannot decode supplied input.");
+            throw new RuntimeException("Cannot decode supplied input.");
         }
 
         long offset = Pointer.nativeValue(hex_end.getValue()) - Pointer.nativeValue(hexPointer);
@@ -149,7 +163,7 @@ public class Hex {
             //System.out.println("Offset is too short for input " + new String(hex, StandardCharsets.ISO_8859_1));
             byte[] extraChars = Arrays.copyOfRange(hex, (int)offset, hex.length);
 
-            throw new IllegalArgumentException("Unexpected characters in hex decode at position " + offset);
+            throw new IllegalArgumentException("Unexpected characters at position " + offset);
         }
 
         return Arrays.copyOfRange(bin, 0, (int)outputLength.getValue());
