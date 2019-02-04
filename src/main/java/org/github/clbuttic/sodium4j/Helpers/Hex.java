@@ -152,12 +152,17 @@ public class Hex {
                 hex_end
         );
 
+        long offset = Pointer.nativeValue(hex_end.getValue()) - Pointer.nativeValue(hexPointer);
+
+        //If the return isn't 0, then something went wrong.
         if (result != 0) {
-            //Result is not 0 if something went wrong, usually due to a weird input.
-            throw new RuntimeException("Cannot decode supplied input.");
+            //If hex_end is set, when return == -1, there is some illegal input
+            if (offset < hex.length)
+                throw new IllegalArgumentException("Illegal characters from position " + offset);
+            else
+                throw new RuntimeException("Cannot decode supplied input.");
         }
 
-        long offset = Pointer.nativeValue(hex_end.getValue()) - Pointer.nativeValue(hexPointer);
 
         if (offset < hex.length) {
             //System.out.println("Offset is too short for input " + new String(hex, StandardCharsets.ISO_8859_1));
