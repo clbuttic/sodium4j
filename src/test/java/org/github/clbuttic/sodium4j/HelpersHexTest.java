@@ -24,7 +24,7 @@ import static org.github.clbuttic.sodium4j.Constants.*;
  */
 public class HelpersHexTest {
     @Rule
-    public ExpectedException thrown= ExpectedException.none();
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void init() {
