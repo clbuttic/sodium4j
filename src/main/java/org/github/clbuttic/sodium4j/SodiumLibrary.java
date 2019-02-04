@@ -13,6 +13,8 @@ import com.sun.jna.ptr.PointerByReference;
  *
  * If there is a feature or behaviousr missing from Sodium4J that requires you to use this interface, please log a new
  * issue at https://github.com/clbuttic/sodium4j/issues so we can help you.
+ *
+ * Much of the documentation was copied or modified from https://jedisct1.gitbooks.io/libsodium/.
  */
 public interface SodiumLibrary extends Library {
 
@@ -109,35 +111,49 @@ public interface SodiumLibrary extends Library {
      * Computing a correct size for b64_maxlen is not straightforward and depends on the chosen variant.
      *
      * The sodium_base64_encoded_len(size_t bin_len, int variant) function is also available for the same purpose.
-     * @param b64
-     * @param b64_maxlen
-     * @param bin
-     * @param bin_len
-     * @param variant
+     *
+     * b64 does not have its lines trimmed.
+     * @param b64 The byte array that the encoded string will be placed into
+     * @param b64_maxlen The maximum length that can be written out
+     * @param bin The binary string to encode
+     * @param bin_len The length of the binary string.
+     * @param variant One of Constants.SODIUM_BASE64_VARIANT_* indicating the Base64 variant to encode with.
      */
     void sodium_bin2base64(byte[] b64, long b64_maxlen,
-                          byte[] bin, long bin_len,
-                          int variant);
+                           byte[] bin, long bin_len,
+                           int variant);
 
     /**
+     *The sodium_base642bin() function decodes a Base64 string using the given variant, and an optional set of
+     * characters to ignore (typically: whitespaces and newlines).
      *
-     * @param bin
-     * @param bin_maxlen
-     * @param b64
-     * @param b64_len
-     * @param ignore
-     * @param bin_len
-     * @param b64_end
-     * @param variant
-     * @return
+     * If b64_end is not NULL, it will be set to the address of the first byte after the last valid parsed character.
+     *
+     * The function returns 0 on success.
+     *
+     * It returns -1 if more than bin_maxlen bytes would be required to store the parsed string, or if the string
+     * couldn't be fully parsed, but a valid pointer for b64_end was not provided.
+     *
+     * @param bin The binary string to decode to
+     * @param bin_maxlen The maximum length that can be written to bin
+     * @param b64 The encoded base64 string to decode
+     * @param b64_len The length of the base64 input string
+     * @param ignore Characters in b64 to ignore. Typically newlines and other white space.
+     * @param bin_len The actual number of bytes written to bin
+     * @param b64_end A pointer to the first unexpected character, or if succesful, the end of b64.
+     * @param variant One of Constants.SODIUM_BASE64_VARIANT_* indicating the Base64 variant to decode with.
+     * @return 0 on success, -1 if more than bin_maxlen bytes would be required to store the parsed string, or if the
+     * string couldn't be fully parsed, but a valid pointer for b64_end was not provided.
      */
     int sodium_base642bin(byte[] bin, long bin_maxlen,
-                      byte[] b64, long b64_len,
-                      byte[] ignore, long bin_len,
-                      long b64_end, int variant);
+                          Pointer b64, long b64_len,
+                          byte[] ignore, LongByReference bin_len,
+                          PointerByReference b64_end, int variant);
 
     /**
      * Calculate the length of a base64 encoded string if a variant was used to encode a bin_len string.
+     *
+     * The returned length includes a trailing \0 byte.
      * @param bin_len The length of the string to encode.
      * @param variant The variant to encode.
      * @return The length of the encoded string.
