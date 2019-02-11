@@ -1,23 +1,19 @@
 package org.github.clbuttic.sodium4j;
 
-import org.github.clbuttic.sodium4j.Helpers.Hex;
+import org.github.clbuttic.sodium4j.helpers.Hex;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
-import static org.github.clbuttic.sodium4j.Constants.*;
 
 /**
- * Test Helpers.Hex encoding and decoding.
+ * Test helpers.Hex encoding and decoding.
  *
  * Not all tests from codec.c are implemented, yet.
  *
