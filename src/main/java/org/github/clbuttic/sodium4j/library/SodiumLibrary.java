@@ -27,9 +27,32 @@ public interface SodiumLibrary extends Library {
 
     int sodium_init();
 
+    /**
+     * Get the version of sodium as a string. It will return as MAJOR.MINOR.PATCH.
+     * @return A string containing the version.
+     */
+
     String sodium_version_string();
 
     // helpers
+
+    /**
+     * Hexadecimal encoding, using a pointer.
+     *
+     * The sodium_bin2hex() function converts bin_len bytes stored at bin into a hexadecimal string.
+     * The string is stored into hex and includes a nul byte (\0) terminator.
+     * hex_maxlen is the maximum number of bytes that the function is allowed to write starting at hex. It must be
+     * at least bin_len * 2 + 1 bytes.
+     * @param hex
+     * @param hex_maxlen
+     * @param bin
+     * @param bin_len
+     * @return
+     */
+
+    void sodium_bin2hex(Pointer hex, long hex_maxlen,
+                        Pointer bin, long bin_len);
+
 
     /**
      * Hexadecimal encoding.
@@ -45,24 +68,9 @@ public interface SodiumLibrary extends Library {
      * @return
      */
 
+
     void sodium_bin2hex(byte[] hex, long hex_maxlen,
                         byte[] bin, long bin_len);
-
-    /**
-     * Hexadecimal encoding, using a pointer.
-     *
-     * The sodium_bin2hex() function converts bin_len bytes stored at bin into a hexadecimal string.
-     * The string is stored into hex and includes a nul byte (\0) terminator.
-     * hex_maxlen is the maximum number of bytes that the function is allowed to write starting at hex. It must be
-     * at least bin_len * 2 + 1 bytes.
-     * @param hex
-     * @param hex_maxlen
-     * @param bin
-     * @param bin_len
-     * @return
-     */
-    void sodium_bin2hex(Pointer hex, long hex_maxlen,
-                        Pointer bin, long bin_len);
 
     /**
      * Hexadecimal decoding.
@@ -99,10 +107,41 @@ public interface SodiumLibrary extends Library {
                        byte[] ignore, LongByReference bin_len,
                        PointerByReference hex_end);
 
-    int sodium_hex2bin(Pointer bin, long bin_maxlen,
-                       byte[] hex, long hex_len,
+    /**
+     * Hexadecimal decoding.
+     *
+     * The sodium_hex2bin() function parses a hexadecimal string hex and converts it to a byte sequence.
+     * hex does not have to be nul terminated, as the number of characters to parse is supplied via the hex_len
+     * parameter.
+     * ignore is a string of characters to skip. For example, the string ": " allows colons and spaces to be
+     * present at any locations in the hexadecimal string. These characters will just be ignored. As a result,
+     * "69:FC", "69 FC", "69 : FC" and "69FC" will be valid inputs, and will produce the same output.
+     * ignore can be set to NULL in order to disallow any non-hexadecimal character.
+     * bin_maxlen is the maximum number of bytes to put into bin.
+     * The parser stops when a non-hexadecimal, non-ignored character is found or when bin_maxlen bytes have been
+     * written.
+     * If hex_end is not NULL, it will be set to the address of the first byte after the last valid parsed
+     * character.
+     * The function returns 0 on success.
+     * It returns -1 if more than bin_maxlen bytes would be required to store the parsed string, or if the string
+     * couldn't be fully parsed, but a valid pointer for hex_end was not provided.
+     *
+     * It evaluates in constant time for a given length and format.
+     * @param bin
+     * @param bin_maxlen
+     * @param hex
+     * @param hex_len
+     * @param ignore
+     * @param bin_len
+     * @param hex_end
+     * @return
+     */
+
+    int sodium_hex2bin(byte[] bin, long bin_maxlen,
+                       Pointer hex, long hex_len,
                        byte[] ignore, LongByReference bin_len,
                        PointerByReference hex_end);
+
     /**
      * The sodium_bin2base64() function encodes bin as a Base64 string. variant must be one of:
      *
@@ -127,6 +166,28 @@ public interface SodiumLibrary extends Library {
     void sodium_bin2base64(byte[] b64, long b64_maxlen,
                            byte[] bin, long bin_len,
                            int variant);
+
+    /**
+     * The sodium_bin2base64() function encodes bin as a Base64 string. variant must be one of:
+     *
+     * - SODIUM_BASE64_VARIANT_ORIGINAL
+     * - SODIUM_BASE64_VARIANT_ORIGINAL_NO_PADDING
+     * - SODIUM_BASE64_VARIANT_URLSAFE
+     * - SODIUM_BASE64_VARIANT_URLSAFE_NO_PADDING
+     *
+     * None of these Base64 variants provides any form of encryption; just like hex encoding, anyone can decode them.
+     *
+     * Computing a correct size for b64_maxlen is not straightforward and depends on the chosen variant.
+     *
+     * The sodium_base64_encoded_len(size_t bin_len, int variant) function is also available for the same purpose.
+     *
+     * b64 does not have its lines trimmed.
+     * @param b64 The byte array that the encoded string will be placed into
+     * @param b64_maxlen The maximum length that can be written out
+     * @param bin The binary string to encode
+     * @param bin_len The length of the binary string.
+     * @param variant One of Constants.SODIUM_BASE64_VARIANT_* indicating the Base64 variant to encode with.
+     */
 
     void sodium_bin2base64(Pointer b64, long b64_maxlen,
                            Pointer bin, long bin_len,
@@ -159,10 +220,33 @@ public interface SodiumLibrary extends Library {
                           byte[] ignore, LongByReference bin_len,
                           PointerByReference b64_end, int variant);
 
+    /**
+     *The sodium_base642bin() function decodes a Base64 string using the given variant, and an optional set of
+     * characters to ignore (typically: whitespaces and newlines).
+     *
+     * If b64_end is not NULL, it will be set to the address of the first byte after the last valid parsed character.
+     *
+     * The function returns 0 on success.
+     *
+     * It returns -1 if more than bin_maxlen bytes would be required to store the parsed string, or if the string
+     * couldn't be fully parsed, but a valid pointer for b64_end was not provided.
+     *
+     * @param bin The binary string to decode to
+     * @param bin_maxlen The maximum length that can be written to bin
+     * @param b64 The encoded base64 string to decode
+     * @param b64_len The length of the base64 input string
+     * @param ignore Characters in b64 to ignore. Typically newlines and other white space.
+     * @param bin_len The actual number of bytes written to bin
+     * @param b64_end A pointer to the first unexpected character, or if succesful, the end of b64.
+     * @param variant One of Constants.SODIUM_BASE64_VARIANT_* indicating the Base64 variant to decode with.
+     * @return 0 on success, -1 if more than bin_maxlen bytes would be required to store the parsed string, or if the
+     * string couldn't be fully parsed, but a valid pointer for b64_end was not provided.
+     */
     int sodium_base642bin(byte[] bin, long bin_maxlen,
                           Pointer b64, long b64_len,
                           byte[] ignore, LongByReference bin_len,
                           PointerByReference b64_end, int variant);
+
     /**
      * Calculate the length of a base64 encoded string if a variant was used to encode a bin_len string.
      *
@@ -182,9 +266,9 @@ public interface SodiumLibrary extends Library {
      * side-channel attacks.
      *
      * The sodium_memcmp() function can be used for this purpose.
-     * @param b1_
-     * @param b2_
-     * @param len
+     * @param b1_ The first region to compare.
+     * @param b2_ The second region to compare.
+     * @param len The length of both regions to compare.
      * @return 0 if the len bytes pointed to by b1_ match the len bytes pointed to by b2_. Otherwise, it returns -1.
      */
     int sodium_memcmp(Pointer b1_, Pointer b2_, long len);
@@ -251,18 +335,142 @@ public interface SodiumLibrary extends Library {
      * stored on the stack.
      *
      * Note that these values can still be present in registers.
-     * @param len
+     * @param len The length above the stack pointer to overwrite.
      */
     @Since("1.0.16")
     void sodium_stackzero(long len);
 
     /**
+     * After use, sensitive data should be overwritten, but memset() and hand-written code can be silently stripped out
+     * by an optimizing compiler or by the linker.
      *
-     * @param pnt
-     * @param len
+     * The sodium_memzero() function tries to effectively zero len bytes starting at pnt, even if optimizations are
+     * being applied to the code.
+     * @param pnt A pointer to the start of the memory region.
+     * @param len The length of the memory region in bytes.
      */
     void sodium_memzero(Pointer pnt, long len);
 
+    /**
+     * The sodium_mlock() function locks at least len bytes of memory starting at addr. This can help avoid swapping
+     * sensitive data to disk.
+     *
+     * In addition, it is recommended to totally disable swap partitions on machines processing sensitive data, or, as
+     * a second choice, use encrypted swap partitions.
+     *
+     * For similar reasons, on Unix systems, one should also disable core dumps when running crypto code outside a
+     * development environment. This can be achieved using a shell built-in such as ulimit or programatically using
+     * setrlimit(RLIMIT_CORE, &(struct rlimit) {0, 0}). On operating systems where this feature is implemented, kernel
+     * crash dumps should also be disabled.
+     *
+     * sodium_mlock() wraps mlock() and VirtualLock(). Note: Many systems place limits on the amount of memory that may
+     * be locked by a process. Care should be taken to raise those limits (e.g. Unix ulimits) where neccessary.
+     * sodium_mlock() will return -1 when any limit is reached.
+     * @param pnt The start of the memory region.
+     * @param len The length of the memory region.
+     * @return
+     */
+    int sodium_mlock(Pointer pnt, long len);
 
+    /**
+     * The sodium_munlock() function should be called after locked memory is not being used any more. It will zero len
+     * bytes starting at addr before actually flagging the pages as swappable again. Calling sodium_memzero() prior to
+     * sodium_munlock() is thus not required.
+     *
+     * On systems where it is supported, sodium_mlock() also wraps madvise() and advises the kernel not to include the
+     * locked memory in core dumps. sodium_munlock() also undoes this additional protection.
+     * @param pnt
+     * @param len
+     * @return
+     */
+    int sodium_munlock(Pointer pnt, long len);
 
+    /**
+     * The sodium_malloc() function returns a pointer from which exactly size contiguous bytes of memory can be
+     * accessed. Like normal malloc, NULL may be returned and errno set if it is not possible to allocate enough memory.
+     *
+     * The allocated region is placed at the end of a page boundary, immediately followed by a guard page. As a result,
+     * accessing memory past the end of the region will immediately terminate the application.
+     *
+     * A canary is also placed right before the returned pointer. Modifications of this canary are detected when trying
+     * to free the allocated region with sodium_free(), and also cause the application to immediately terminate.
+     *
+     * An additional guard page is placed before this canary to make it less likely for sensitive data to be accessible
+     * when reading past the end of an unrelated region.
+     *
+     * The allocated region is filled with 0xdb bytes in order to help catch bugs due to uninitialized data.
+     *
+     * In addition, sodium_mlock() is called on the region to help avoid it being swapped to disk. On operating systems
+     * supporting MAP_NOCORE or MADV_DONTDUMP, memory allocated this way will also not be part of core dumps.
+     *
+     * The returned address will not be aligned if the allocation size is not a multiple of the required alignment.
+     *
+     * For this reason, sodium_malloc() should not be used with packed or variable-length structures, unless the size
+     * given to sodium_malloc() is rounded up in order to ensure proper alignment.
+     *
+     * All the structures used by libsodium can safely be allocated using sodium_malloc().
+     *
+     * Allocating 0 bytes is a valid operation. It returns a pointer that can be successfully passed to sodium_free().
+     * @param size
+     * @return
+     */
+    Pointer sodium_malloc(long size);
+
+    /**
+     * The sodium_allocarray() function returns a pointer from which count objects that are size bytes of memory each
+     * can be accessed.
+     *
+     * It provides the same guarantees as sodium_malloc() but also protects against arithmetic overflows when
+     * count * size exceeds SIZE_MAX.
+     * @param count
+     * @param size
+     * @return
+     */
+    Pointer sodium_allocarray(long count, long size);
+
+    /**
+     * The sodium_free() function unlocks and deallocates memory allocated using sodium_malloc() or sodium_allocarray().
+     *
+     * Prior to this, the canary is checked in order to detect possible buffer underflows and terminate the process if
+     * required.
+     *
+     * sodium_free() also fills the memory region with zeros before the deallocation.
+     *
+     * This function can be called even if the region was previously protected using sodium_mprotect_readonly(); the
+     * protection will automatically be changed as needed.
+     *
+     * ptr can be NULL, in which case no operation is performed.
+     * @param ptr
+     */
+    void sodium_free(Pointer ptr);
+
+    /**
+     * The sodium_mprotect_noaccess() function makes a region allocated using sodium_malloc() or sodium_allocarray()
+     * inaccessible. It cannot be read or written, but the data are preserved.
+     *
+     * This function can be used to make confidential data inaccessible except when actually needed for a specific
+     * operation.
+     * @param ptr
+     * @return
+     */
+    int sodium_mprotect_noaccess(Pointer ptr);
+
+    /**
+     * The sodium_mprotect_readonly() function marks a region allocated using sodium_malloc() or sodium_allocarray() as
+     * read-only.
+     *
+     * Attempting to modify the data will cause the process to terminate.
+     * @param ptr
+     * @return
+     */
+    int sodium_mprotect_readonly(Pointer ptr);
+
+    /**
+     * The sodium_mprotect_readwrite() function marks a region allocated using sodium_malloc() or sodium_allocarray()
+     * as readable and writable, after having been protected using sodium_mprotect_readonly() or
+     * sodium_mprotect_noaccess().
+     * @param ptr
+     * @return
+     */
+    int sodium_mprotect_readwrite(Pointer ptr);
 }
