@@ -1,9 +1,10 @@
-package org.github.clbuttic.sodium4j.Helpers;
+package org.github.clbuttic.sodium4j.helpers;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
+import org.github.clbuttic.sodium4j.SecureMemory;
 import org.github.clbuttic.sodium4j.Sodium4J;
 
 import java.nio.charset.Charset;
@@ -48,6 +49,18 @@ public class Base64 {
         Sodium4J.getLibrary().sodium_bin2base64(b64, b64.length, bin, bin.length, variant);
         //Remove null terminator
         return Arrays.copyOfRange(b64, 0, b64.length - 1);
+    }
+
+    public static SecureMemory encode(SecureMemory bin, int variant) {
+        SecureMemory b64 = new SecureMemory(Sodium4J.getLibrary().sodium_base64_encoded_len(bin.getLength(), variant));
+
+        Sodium4J.getLibrary().sodium_bin2base64(
+                b64.getPointer(), b64.getLength(),
+                bin.getPointer(), bin.getLength(),
+                variant);
+
+        //Remove the null terminator
+        return b64.copyOfRange(0, b64.getLength() - 1);
     }
 
     /**
