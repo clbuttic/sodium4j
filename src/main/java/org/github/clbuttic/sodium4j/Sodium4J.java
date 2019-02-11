@@ -2,11 +2,8 @@ package org.github.clbuttic.sodium4j;
 
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.github.clbuttic.sodium4j.library.CLibrary;
+import org.github.clbuttic.sodium4j.library.SodiumLibrary;
 
 public class Sodium4J {
 
@@ -25,6 +22,8 @@ public class Sodium4J {
 
     private static SodiumLibrary libSodium;
 
+    private static CLibrary libc;
+
     /**
      * Get an instance of Sodium4J.
      *
@@ -41,6 +40,11 @@ public class Sodium4J {
         libSodium  = Native.load(
                 (Platform.isWindows() ? "libsodium" : "sodium"),
                 SodiumLibrary.class
+        );
+
+        libc = Native.load(
+                (Platform.isWindows() ? "msvcrt" : "c"),
+                CLibrary.class
         );
 
         int ret = libSodium.sodium_init();
@@ -106,8 +110,12 @@ public class Sodium4J {
      * @return
      */
     public static SodiumLibrary getLibrary() {
-
         Sodium4J.getInstance();
         return libSodium;
+    }
+
+    public static CLibrary getCLibrary() {
+        Sodium4J.getInstance();
+        return libc;
     }
 }
