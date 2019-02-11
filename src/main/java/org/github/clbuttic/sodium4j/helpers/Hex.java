@@ -1,14 +1,14 @@
-package org.github.clbuttic.sodium4j.Helpers;
+package org.github.clbuttic.sodium4j.helpers;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
+import org.github.clbuttic.sodium4j.SecureMemory;
 import org.github.clbuttic.sodium4j.Sodium4J;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.rmi.StubNotFoundException;
 import java.util.Arrays;
 
 /**
@@ -50,6 +50,18 @@ public class Hex {
         Sodium4J.getLibrary().sodium_bin2hex(hex, hex.length, bin, bin.length);
         //Remove the null terminator.
         return Arrays.copyOfRange(hex, 0, hex.length - 1);
+    }
+
+    /**
+     * Encode a SecureMemory region into a hexadecimal byte array.
+     * @param bin The region to encode
+     * @return A hexadecimal byte encoded region
+     */
+    public static SecureMemory encode(SecureMemory bin) {
+        SecureMemory hex = new SecureMemory(bin.getLength() * 2 + 1);
+        Sodium4J.getLibrary().sodium_bin2hex(hex.getPointer(), hex.hashCode(), bin.getPointer(), bin.getLength());
+        //Remove the null terminator
+        return hex.copyOfRange(0, hex.getLength() - 1);
     }
 
     /**
