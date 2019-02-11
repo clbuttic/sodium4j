@@ -1,9 +1,7 @@
 package org.github.clbuttic.sodium4j;
 
 
-import jdk.nashorn.internal.runtime.ConsString;
-import org.github.clbuttic.sodium4j.Helpers.Base64;
-import org.github.clbuttic.sodium4j.Constants;
+import org.github.clbuttic.sodium4j.helpers.Base64;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -16,7 +14,7 @@ import java.util.Random;
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * Test Helpers.Base64 encoding and decoding
+ * Test helpers.Base64 encoding and decoding
  */
 public class HelpersBase64Test {
     @Rule
