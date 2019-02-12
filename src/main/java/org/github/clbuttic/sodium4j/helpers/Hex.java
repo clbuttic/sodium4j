@@ -4,7 +4,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
-import org.github.clbuttic.sodium4j.SecureMemory;
+import org.github.clbuttic.sodium4j.types.SecureMemory;
 import org.github.clbuttic.sodium4j.Sodium4J;
 
 import java.nio.charset.Charset;

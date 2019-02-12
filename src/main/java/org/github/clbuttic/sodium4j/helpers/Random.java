@@ -1,6 +1,6 @@
 package org.github.clbuttic.sodium4j.helpers;
 
-import org.github.clbuttic.sodium4j.SecureMemory;
+import org.github.clbuttic.sodium4j.types.SecureMemory;
 import org.github.clbuttic.sodium4j.Sodium4J;
 
 /**

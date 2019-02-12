@@ -571,4 +571,69 @@ public interface SodiumLibrary extends Library {
      * called by the child after a fork() call.
      */
     void randombytes_stir();
+
+    // Key Exchange
+
+    /**
+     * The crypto_kx_keypair() function creates a new key pair. It puts the public key into pk and the secret key into
+     * sk.
+     * @param pk The new public key.
+     * @param sk The new secret key.
+     * @return
+     */
+    int crypto_kx_keypair(Pointer pk, Pointer sk);
+
+    /**
+     * The crypto_kx_seed_keypair() function computes a deterministic key pair from the seed seed
+     * (crypto_kx_SEEDBYTES bytes).
+     * @param pk The new public key.
+     * @param sk The new secret key.
+     * @param seed The seed to use.
+     * @return
+     */
+    int crypto_kx_seed_keypair(Pointer pk, Pointer sk, Pointer seed);
+
+    /**
+     * The crypto_kx_client_session_keys() function computes a pair of shared keys (rx and tx) using the client's
+     * public key client_pk, the client's secret key client_sk and the server's public key server_pk.
+     *
+     * It returns 0 on success, or -1 if the server's public key is not acceptable.
+     *
+     * These keys can be used by any functions requiring secret keys up to crypto_kx_SESSIONKEYBYTES bytes, including
+     * crypto_secretbox_*() and crypto_aead_*().
+     *
+     * The shared secret key rx should be used by the client to receive data from the server, whereas tx should be used
+     * for data flowing in the opposite direction.
+     *
+     * rx and tx are both crypto_kx_SESSIONKEYBYTES bytes long. If only one session key is required, either rx or tx
+     * can be set to NULL.
+     * @param rx
+     * @param tx
+     * @param client_pk
+     * @param client_sk
+     * @param server_pk
+     * @return
+     */
+    int crypto_kx_client_session_keys(Pointer rx, Pointer tx, Pointer client_pk, Pointer client_sk, Pointer server_pk);
+
+    /**
+     * The crypto_kx_server_session_keys() function computes a pair of shared keys (rx and tx) using the server's
+     * public key server_pk, the server's secret key server_sk and the client's public key client_pk.
+     *
+     * It returns 0 on success, or -1 if the client's public key is not acceptable.
+     *
+     * The shared secret key rx should be used by the server to receive data from the client, whereas tx should be used
+     * for data flowing in the opposite direction.
+     *
+     * rx and tx are both crypto_kx_SESSIONKEYBYTES bytes long. If only one session key is required, either rx or tx
+     * can be set to NULL.
+     * @param rx
+     * @param tx
+     * @param server_pk
+     * @param server_sk
+     * @param client_pk
+     * @return
+     */
+    int crypto_kx_server_session_keys(Pointer rx, Pointer tx, Pointer server_pk, Pointer server_sk, Pointer client_pk);
+
 }

@@ -1,6 +1,7 @@
-package org.github.clbuttic.sodium4j;
+package org.github.clbuttic.sodium4j.types;
 
 import com.sun.jna.Pointer;
+import org.github.clbuttic.sodium4j.Sodium4J;
 import org.github.clbuttic.sodium4j.library.SodiumLibrary;
 
 import java.nio.charset.Charset;
