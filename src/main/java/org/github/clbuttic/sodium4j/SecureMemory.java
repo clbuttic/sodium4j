@@ -3,6 +3,9 @@ package org.github.clbuttic.sodium4j;
 import com.sun.jna.Pointer;
 import org.github.clbuttic.sodium4j.library.SodiumLibrary;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
  * A secure memory region, and primary type for Sodium4J usage.
  *
@@ -36,7 +39,7 @@ public class SecureMemory {
      * Constructor with space allocation.
      *
      * Allocations len bytes immediately.
-     * @param len
+     * @param len The length to allocate internally.
      */
     public SecureMemory(long len) {
         if (library == null)
@@ -62,10 +65,12 @@ public class SecureMemory {
 
     /**
      * A copy constructor. Construct a copy from another instance.
-     * @param source
+     * @param source A SecureMemory to copy.
      */
     public SecureMemory(SecureMemory source) {
-        SecureMemory tmp = source.copyOf();
+        if (source.canRead())
+            throw new IllegalStateException("Source instance is read protected.");
+        SecureMemory tmp = source.copyOfRange(0, getLength());;
         length = tmp.getLength();
         pointer = tmp.getPointer();
         access = tmp.access;
@@ -95,14 +100,6 @@ public class SecureMemory {
     }
 
     /**
-     * Create a new copy of this instance.
-     * @return A new copy.
-     */
-    public SecureMemory copyOf() {
-        return copyOfRange(0, getLength());
-    }
-
-    /**
      * Return a shorter copy of this instance.
      *
      * @param offset Where to start copying
@@ -128,7 +125,9 @@ public class SecureMemory {
 
     /**
      * Copy the memory region to a buffer.
-     * @param buffer
+     *
+     * Buffer must be correctly allocated.
+     * @param buffer The buffer to copy the internal region to.
      */
     public void copyTo(byte[] buffer) {
         if (pointer == Pointer.NULL)
@@ -141,8 +140,28 @@ public class SecureMemory {
     }
 
     /**
+     * Convert the memory region to a string, using a specific Charset.
+     *
+     * @param charset The charset to encode the String to.
+     * @return The memory region as a String.
+     */
+    public String toString(Charset charset) {
+        byte[] tmp = new byte[(int)getLength()];
+        copyTo(tmp);
+        return new String(tmp, charset);
+    }
+
+    /**
+     * Convert the memory region to a String, using ISO8859:1 Charset.
+     * @return The memory region as a String.
+     */
+    public String toString() {
+        return toString(StandardCharsets.ISO_8859_1);
+    }
+
+    /**
      * Get the length of the internal data.
-     * @return the lenght in bytes.
+     * @return the length in bytes.
      */
     public long getLength() {
         return length;
