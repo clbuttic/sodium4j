@@ -127,6 +127,20 @@ public class SecureMemory {
     }
 
     /**
+     * Copy the memory region to a buffer.
+     * @param buffer
+     */
+    public void copyTo(byte[] buffer) {
+        if (pointer == Pointer.NULL)
+            throw new NullPointerException("Instance has been disposed.");
+        if (!canRead())
+            throw new IllegalStateException("Memory is read protected.");
+        if (buffer == null || buffer.length != getLength())
+            throw new IllegalArgumentException("Supplied buffer is not the correct length");
+        getPointer().read(0, buffer, 0, (int)getLength());
+    }
+
+    /**
      * Get the length of the internal data.
      * @return the lenght in bytes.
      */
@@ -306,6 +320,19 @@ public class SecureMemory {
     public void unlock() {
         //TODO: Unlocking can fail, test this.
         library.sodium_munlock(getPointer(), getLength());
+    }
+
+    /**
+     * Fill the region with random, unpredictable data.
+     */
+    public void fillRandom() {
+        if (getPointer() == Pointer.NULL)
+            throw new NullPointerException("Instance has been disposed.");
+
+        if (!canWrite())
+            throw new IllegalStateException("Memory is write protected.");
+
+        Sodium4J.getLibrary().randombytes_buf(getPointer(), getLength());
     }
 
     /**
