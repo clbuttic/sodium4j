@@ -320,6 +320,9 @@ public interface SodiumLibrary extends Library {
      */
     int sodium_compare(Pointer b1_, Pointer b2_, long len);
 
+
+    // Memory stuff
+
     /**
      * Tests if arbitrary length is 0.
      *
@@ -473,4 +476,99 @@ public interface SodiumLibrary extends Library {
      * @return
      */
     int sodium_mprotect_readwrite(Pointer ptr);
+
+    // Padding
+
+    /**
+     * The sodium_pad() function adds padding data to a buffer buf whose original size is unpadded_buflen in order to
+     * extend its total length to a multiple of blocksize.
+     *
+     * The new length is put into padded_buflen_p.
+     *
+     * The function returns -1 if the padded buffer length would exceed max_buflen, or if the block size is 0. It
+     * returns 0 on success.
+     *
+     * @param padded_buflen_p The new length of buf, with padding. A multiple of blocksize
+     * @param buf The buffer to pad
+     * @param unpadded_buflen The length of the unpadded data in buf.
+     * @param blocksize The blocksize to pad to.
+     * @param max_buflen The maximum length of buf.
+     * @return 0 on success, or -1 if the added padding would exceed max_buflen
+     */
+    int sodium_pad(LongByReference padded_buflen_p, Pointer buf,
+                   long unpadded_buflen, long blocksize, long max_buflen);
+
+    /**
+     * The sodium_unpad() function computes the original, unpadded length of a message previously padded using
+     * sodium_pad(). The original length is put into unpadded_buflen_p.
+     *
+     * @param unpadded_buflen_p The new length of buf, minus the padding.
+     * @param buf The buffer to unpad.
+     * @param padded_buflen The length of the padded data in buf.
+     * @param blocksize The blocksize that was padded to.
+     * @return 0 on success
+     */
+    int sodium_unpad(LongByReference unpadded_buflen_p, Pointer buf,
+                     long padded_buflen, long blocksize);
+
+    /**
+     * The randombytes_random() function returns an unpredictable value between 0 and 0xffffffff (included).
+     * @return a random number.
+     */
+    int randombytes_random();
+
+    /**
+     * The randombytes_uniform() function returns an unpredictable value between 0 and upper_bound (excluded). Unlike
+     * randombytes_random() % upper_bound, it guarantees a uniform distribution of the possible output values even when
+     * upper_bound is not a power of 2. Note that an upper_bound < 2 leaves only a single element to be chosen, namely
+     * 0.
+     * @param upper_bound The upper bound, one more than the highest expected number.
+     * @return A random number 0 <= n < upper_bound
+     */
+    int randombytes_uniform(int upper_bound);
+
+    /**
+     * The randombytes_buf() function fills size bytes starting at buf with an unpredictable sequence of bytes.
+     * @param buf A buffer to fill
+     * @param size The number of bytes to fill.
+     */
+    void randombytes_buf(Pointer buf, long size);
+
+    /**
+     * The randombytes_buf_deterministic function stores size bytes into buf indistinguishable from random bytes without
+     * knowing seed.
+     *
+     * For a given seed, this function will always output the same sequence. size can be up to 2^38 (256 GB).
+     *
+     * seed is randombytes_SEEDBYTES bytes long.
+     *
+     * This function is mainly useful for writing tests, and was introduced in libsodium 1.0.12. Under the hood, it
+     * uses the ChaCha20 stream cipher.
+     *
+     * Up to 256 GB can be produced with a single seed.
+     * @param buf A buffer to fill
+     * @param size The number of bytes to fill
+     * @param seed The seed to use.
+     */
+    @Since("1.0.12")
+    void randombytes_buf_deterministic(Pointer buf, long size,
+                                       Pointer seed);
+
+    /**
+     * This deallocates the global resources used by the pseudo-random number generator. More specifically, when the
+     * /dev/urandom device is used, it closes the descriptor. Explicitly calling this function is almost never required.
+     * @return
+     */
+    int randombytes_close();
+
+    /**
+     * The randombytes_stir() function reseeds the pseudo-random number generator, if it supports this operation.
+     *
+     * Calling this function is not required with the default generator, even after a fork() call, unless the descriptor
+     * for /dev/urandom was closed using randombytes_close().
+     *
+     * If a non-default implementation is being used (see randombytes_set_implementation()), randombytes_stir() must be
+     * called by the child after a fork() call.
+     */
+    void randombytes_stir();
 }
