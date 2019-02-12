@@ -9,14 +9,14 @@ import java.nio.charset.StandardCharsets;
 /**
  * A secure memory region, and primary type for Sodium4J usage.
  *
- * Underlying data is guarded, and not copied across the native interface except when requested. It is zero'ed out when
- * disposed. Memory access can be changed at any time. It is suggested that long lived sensitive data is set to
- * disallow access when not needed.
+ * Underlying data is guarded. It is zero'ed out when disposed. Memory access can be changed at any time. It is
+ * suggested that long lived sensitive data is set to disallow access when not needed, and destroyed when not needed,
+ * using dispose().
  *
  * References to instances of this class can be passed around any number of times. The underlying data will be copied
  * only when explicitly requested, and only when access is allowed.
  *
- * This memory region can be treated as an arbitrary length number, when nonces, etc are held.
+ * This memory region can be treated as an arbitrary length number, for nonces, etc.
  */
 public class SecureMemory {
     private Pointer pointer;
